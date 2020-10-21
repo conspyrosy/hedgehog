@@ -1,0 +1,53 @@
+button {
+  flex: 1;
+  background-color: #F4D7AF;
+  color: rgb(51, 51, 51);
+  border: 1px solid rgb(51, 51, 51);
+  font-size: 0.8em;
+  padding: 0.2em 0.5em;
+  cursor: pointer;
+  &:hover {
+    background-color: #F8E5CA;
+    position: relative;
+    z-index: 1;
+  }
+  &.selected {
+    background-color: #ebb56c;
+  }
+}
+
+.button-group {
+  display: flex;
+  margin: auto;
+  button:not(:first-child) {
+    margin-left: -1px;
+  }
+}
+
+.button-group > button:first-child {
+  border-radius: 6px 0px 0px 6px;
+}
+
+.button-group > button:last-child {
+  border-radius: 0px 6px 6px 0px;
+}
+
+.form-control {
+  border: 1px solid #e4e6ef;
+  width: 100%;
+  padding: 5px;
+  line-height: 1.5;
+  color: #3f4254;
+  background-color: #fff;
+  border-radius: 0.42rem;
+}
+
+.options-form {
+  max-width: 800px;
+  margin: auto;
+}
+
+.label-holder {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}

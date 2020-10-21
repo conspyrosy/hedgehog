@@ -1,0 +1,58 @@
+@import "buttons";
+
+.App {
+  text-align: center;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #966641;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.logo {
+  background-image: url("./../images/hedgehog-logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  height: 50px;
+  margin: auto;
+  padding-top: 8px;
+}
+
+.main {
+  background-color: #F4D7AF;
+}
+
+.navbar {
+  width: 100%;
+  height: 60px;
+  background-color: #966641;
+}
+
+.footer {
+  width: 100%;
+  height: 60px;
+  background-color: #966641;
+  margin-top: 20px;
+}
+
+.page-content {
+  min-height: calc(100vh - 200px);
+}
+
+.container {
+  margin: 40px;
+  background-color: white;
+  border-radius: 50px;
+  padding: 25px;
+}

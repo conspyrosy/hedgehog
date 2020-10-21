@@ -1,68 +1,65 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![hedgehog](src/images/hedgehog-logo.png "Hedgehog")
 
-## Available Scripts
+# What is HedgeHog?
 
-In the project directory, you can run:
+Being a Liquidity Provider on a constant product AMM means you are exposed to impermanent loss. Options give you the opportunity to speculate on price change in one direction and combining two options (one in each direction - known as a straddle or strangle) allows you to hedge against impermanent loss caused by large price moves.
 
-### `npm start`
+Hedgehog is a simple tool for helping you visualise AMM Impermanent Loss as an LP whilst hedging with decentralised options. 
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Soon, it will allow you to provide liquidity to a pool and buy the options you wish to hedge in an atomic transaction.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+# Strategy
 
-### `npm test`
+In Uniswap, as an LP, you provide assets to a pool at a 50/50 ratio. The AMM attempts to remain balanced by using the constant product formula a * b where a and b are values of tokens in the pool. This works well in fairly stable markets, but in trending markets this has an adverse effect of "Impermanent Loss" and the more imbalanced pools get, the worse the "loss" becomes. To understand this concept more, you can read this article:
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+https://medium.com/@pintail/understanding-uniswap-returns-cc593f3499ef
 
-### `npm run build`
+Lets take an example of providing liquiditiy to the ETH-USDC pool with a mid price of 397.68. The following graph shows the extent of the loss as the asset ratio changes:
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![Impermanent Loss](images/impermanent-loss.png)
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Below we can see the return of a 390 CALL option as price changes (ignoring any extrinsic value the option has and assuming we will exercise it). We have purposely bought enough such that (impermanent loss @ +100% = return of total CALL options bought @ +100%):
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![Call Returns](images/call-returns.png)
 
-### `npm run eject`
+Similarly, the returns of a 400 PUT option are graphed below. We have purposely bought enough such that (impermanent loss @ -50% = return of total PUT options bought @ -50%):
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+![Put Returns](images/put-returns.png)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Putting this all together and plotting the options cost, we get a solid visualisation of how much it will cost to be fully hedged within out desired price range:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+![Final Graph](images/full-graph.png)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+We can use this information, alongside expected pool returns to decide whether it is worth providing liquidity and using options to hedge. For now, no expected returns are plotted as this varies wildly based on how a pool is transacted with. But, by using HedgeHog alongside any expected pool growth, it is trivial to see if pool returns outweigh the cost of the options hedge.
 
-## Learn More
+Hedgehog allows you to choose the available strike prices of PUTs, CALLs and the price range to hedge in the settings panel. It will automatically calculate the amount of options needed using the methodology outlined above.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+![Hedgehog Settings](images/hedgehog-settings.png)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+If you want a better explanation of this strategy, DefiROI has made a video outlining it in much more detail: 
 
-### Code Splitting
+[![Hedging Impermanent Loss Video](https://img.youtube.com/vi/GSIlF5q4eUk/0.jpg)](https://www.youtube.com/watch?v=GSIlF5q4eUk "Everything Is AWESOME")
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+# TODO
 
-### Analyzing the Bundle Size
+- add opyn connector
+- add cost of otokens. cost per day (pro-rata)
+- user should say how much liquidity they are providing as options price vary depending on amount bought...
+- refresh uniswap mid price and option data on block updates
+- opyn connector - understand strike price, exponents etc
+- opyn connector - figure out puts/calls separation
+- opyn connector - fetch assets by strike/underlying
+- smart contract to buy the options and provide liquidity to the pool
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### Improvements
 
-### Making a Progressive Web App
+- Allow user to alter amount of options needed manually
+- Support multiple asset pools. Right now just ETH-USDC is hardcoded due to lack of options available
+- Allow an arbitrary amount of options to be placed on the graph (multiple calls and puts). This will allow for more exotic strategies e.g. butterfly spreads.
+- Support other AMMs e.g. balancer, mooniswap, bancor, dodoex. Since balancer has up to 8 assets per pool it will be difficult to do anything meaningful with multi-asset pools. but for pools with only 2 assets and custom weights e.g. 98/2, this should work well.
+- Fetch options from multiple sources (centralised or decentralised)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+### Credits
 
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- DefiROI for inspiring idea
+- https://www.flaticon.com for the hedgehog logo
