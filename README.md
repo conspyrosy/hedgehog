@@ -40,20 +40,14 @@ If you want a better explanation of this strategy, DefiROI has made a video outl
 
 [![Hedging Impermanent Loss Video](https://img.youtube.com/vi/GSIlF5q4eUk/0.jpg)](https://www.youtube.com/watch?v=GSIlF5q4eUk "Everything Is AWESOME")
 
-# TODO
+### Improvements (pending...)
 
-- add opyn connector
-- add cost of otokens. cost per day (pro-rata)
-- user should say how much liquidity they are providing as options price vary depending on amount bought...
+- cost per day (pro-rata) of hedging
+- user should say how much liquidity they are providing as options price vary depending on amount bought... right now we're assuming 1 unit of liquidity
 - refresh uniswap mid price and option data on block updates
-- opyn connector - understand strike price, exponents etc
-- opyn connector - figure out puts/calls separation
-- opyn connector - fetch assets by strike/underlying
 - smart contract to buy the options and provide liquidity to the pool
-
-### Improvements
-
-- Allow user to alter amount of options needed manually
+- be fully hedged at each point vs the extreme points...
+- Allow user to alter amount of oTokens desired manually
 - Support multiple asset pools. Right now just ETH-USDC is hardcoded due to lack of options available
 - Allow an arbitrary amount of options to be placed on the graph (multiple calls and puts). This will allow for more exotic strategies e.g. butterfly spreads.
 - Support other AMMs e.g. balancer, mooniswap, bancor, dodoex. Since balancer has up to 8 assets per pool it will be difficult to do anything meaningful with multi-asset pools. but for pools with only 2 assets and custom weights e.g. 98/2, this should work well.
