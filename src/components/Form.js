@@ -1,17 +1,24 @@
 import React, {Component} from 'react';
 const dateFormat = require('dateformat');
 const { ChainId, Token, WETH, Fetcher, Route } = require('@uniswap/sdk');
-const { getChartData } = require('./../utils/getChartData');
+const { getChartAndPurchaseData } = require('./../utils/getChartData');
 const supportedPairs = require('./../constants/supportedPairs.json'); //hardcoded for now...
+const {
+    getOptionsForPair,
+    generateOptionKey,
+    getCallStrikePrice,
+    getPutStrikePrice
+} = require('../utils/opynUtils');
 
 class Form extends Component {
     state = {
+        currentPair: supportedPairs[0],
         priceFactor: 2,
-        optionsExpiry: 1603440000,
+        optionsExpiry: Object.keys(this.props.optionsData[generateOptionKey(supportedPairs[0].token0,supportedPairs[0].token1)])[0],
         callIndex: 0,
         putIndex: 0,
-        callTokensNeeded: 0,
-        putTokensNeeded: 0,
+        callsNeeded: 0,
+        putsNeeded: 0,
         currentPrice: 1,
         pairIndex: 0
     }
@@ -19,12 +26,15 @@ class Form extends Component {
     componentDidMount() {
         this.recalculateChartData();
 
-        //todo: this should update periodically
+        //todo: this should update periodically to keep price fresh
         this.fetchUniswapPoolPrice();
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(JSON.stringify(prevProps) !== JSON.stringify(this.props) || JSON.stringify(prevState) !== JSON.stringify(this.state)) {
+        const { opynConnector: a, ...prevPropsNoConnector } = prevProps;
+        const { opynConnector: b, ...propsNoConnector } = this.props;
+
+        if(JSON.stringify(prevPropsNoConnector) !== JSON.stringify(propsNoConnector) || JSON.stringify(prevState) !== JSON.stringify(this.state)) {
             this.recalculateChartData();
         }
     }
@@ -70,32 +80,57 @@ class Form extends Component {
     recalculateChartData() {
         //settings
         const { priceFactor, optionsExpiry, putIndex, callIndex, currentPrice } = this.state;
-        const { optionsData, updateChartData } = this.props;
+        const { optionsData, updateChartData, opynConnector } = this.props;
 
-        const relevantPutOption = optionsData[optionsExpiry].puts[putIndex];
-        const relevantCallOption = optionsData[optionsExpiry].calls[callIndex];
-        const putStrikePrice = !relevantPutOption ? -1 : relevantPutOption.strikePrice.value;
-        const callStrikePrice = !relevantCallOption ? -1 : relevantCallOption.strikePrice.value;
+        const putOption = this.getPutOptions()[putIndex];
+        const callOption = this.getCallOptions()[callIndex];
 
-        //opyn price data. hardcoded for now...
-        const putCost = 15;
-        const callCost = 12.5;
-
-        const chartData = getChartData({
+        const {
+            chartData,
+            optionsRequired: {
+                callsNeeded,
+                putsNeeded
+            }
+        } = getChartAndPurchaseData({
             priceFactor,
             currentPrice,
-            callStrikePrice,
-            putStrikePrice,
-            callCost,
-            putCost
+            callOption,
+            putOption,
+            onPriceUpdate: this.props.updatePriceData,
+            opynConnector
+        });
+
+        this.setState({
+            callsNeeded,
+            putsNeeded
         });
 
         updateChartData(chartData);
     }
 
+    getCallOptions() {
+        const { currentPair, optionsExpiry } = this.state;
+        const { optionsData } = this.props;
+        const callOptions = getOptionsForPair(optionsData, currentPair.token0, currentPair.token1)[optionsExpiry];
+        if(callOptions) {
+            return callOptions.filter(option => option.underlying === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+        }
+        return [];
+    }
+
+    getPutOptions() {
+        const { currentPair, optionsExpiry } = this.state;
+        const { optionsData } = this.props;
+        const putOptions = getOptionsForPair(optionsData, currentPair.token0, currentPair.token1)[optionsExpiry];
+        if(putOptions) {
+            return putOptions.filter(option => option.underlying !== '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+        }
+        return [];
+    }
+
     render() {
         const { optionsData } = this.props;
-        const { priceFactor, optionsExpiry, callTokensNeeded, putTokensNeeded } = this.state;
+        const { priceFactor, optionsExpiry, callsNeeded, putsNeeded, currentPair } = this.state;
 
         return (
             <div className="options-form">
@@ -104,7 +139,11 @@ class Form extends Component {
                 </div>
 
                 <select name="pool" id="pool" className="form-control">
-                    <option value="ethusdc">ETH-USDC</option>
+                    {supportedPairs.map(
+                        (pair, index) => (
+                            <option value={index}>{pair.token0_name + "-" + pair.token1_name}</option>
+                        )
+                    )}
                 </select>
 
                 <br/>
@@ -135,7 +174,7 @@ class Form extends Component {
                 <select name="expiry" id="expiry" className="form-control" value={optionsExpiry}
                         onChange={(evt) => this.setOptionsExpiry(evt)}>
                     {
-                        Object.keys(optionsData).map(
+                        Object.keys(getOptionsForPair(optionsData, currentPair.token0, currentPair.token1)).map(
                             key => (
                                 <option value={key}>{dateFormat(new Date(key * 1000), "d mmmm yyyy h:MM")}</option>
                             )
@@ -149,11 +188,11 @@ class Form extends Component {
 
                 <select name="call" id="call" className="form-control" onChange={(evt) => this.setOptionIndex(evt, false)}>
                     {
-                        optionsData[optionsExpiry].calls < 1 ?
+                        this.getCallOptions().length < 1 ?
                             <option value="-1" disabled="disabled">No calls available</option>
                         :
-                        optionsData[optionsExpiry].calls.map(
-                            (call, index) => <option value={index}>{call.strikePrice.value}</option>
+                        this.getCallOptions().map(
+                            (call, index) => <option value={index}>{getCallStrikePrice(call)}</option>
                         )
                     }
                 </select>
@@ -164,26 +203,26 @@ class Form extends Component {
 
                 <select name="put" id="put" className="form-control" onChange={(evt) => this.setOptionIndex(evt, true)}>
                     {
-                        optionsData[optionsExpiry].puts < 1 ?
+                        this.getPutOptions().length < 1 ?
                             <option value="-1" disabled="disabled">No puts available</option>
                             :
-                            optionsData[optionsExpiry].puts.map(
-                                (put, index) => <option value={index}>{put.strikePrice.value}</option>
+                            this.getPutOptions().map(
+                                (put, index) => <option value={index}>{getPutStrikePrice(put)}</option>
                             )
                     }
                 </select>
 
                 <div className="label-holder">
-                    <label htmlFor="call-tokens-amount">Call oTokens to Buy:</label>
+                    <label htmlFor="call-tokens-amount">Call options to Buy:</label>
                 </div>
 
-                <input className="form-control" name="call-tokens-amount" value={callTokensNeeded} disabled/>
+                <input className="form-control" name="call-tokens-amount" value={callsNeeded} disabled/>
 
                 <div className="label-holder">
-                    <label htmlFor="put-tokens-amount">Put oTokens to Buy:</label>
+                    <label htmlFor="put-tokens-amount">Put options to Buy:</label>
                 </div>
 
-                <input className="form-control" name="put-tokens-amount" value={putTokensNeeded} disabled/>
+                <input className="form-control" name="put-tokens-amount" value={putsNeeded} disabled/>
             </div>
         )
     }

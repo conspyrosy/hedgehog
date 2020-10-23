@@ -1,28 +1,111 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Form from './Form';
 import Highcharts from 'highcharts';
 import HighchartsReact from "highcharts-react-official";
-const optionsData = require('./../constants/mocks/optionsMock.json');
+const Web3 = require("web3");
+const OpynConnector = require('opyn-connector');
+const { getRestructuredOptions } = require('../utils/opynUtils');
 
 class App extends Component {
     state = {
         chartData: {},
-        optionsData,
-        optionsPriceData: {
-            putCost: 5, //opyn price data
-            callCost: 5,
-        },
-        uniswapData: {
-            currentPrice: 380, //uniswap price data
+        ethereum: {},
+        optionsData: {},
+        priceData: {
+            timestamp: 0,
+            callCost: 0,
+            putCost: 0,
+            callsNeeded: 0,
+            putsNeeded: 0,
+        }
+    }
+
+    calculateOptionsCost() {
+        const { callCost, putCost, callsNeeded, putsNeeded } = this.state.priceData;
+
+        const calculateOptionCost = (cost, amountOfOptions) => {
+            if(!cost || !amountOfOptions) {
+                return 0;
+            }
+            return (cost / 1000000) * amountOfOptions;
+        }
+
+        return calculateOptionCost(callCost, callsNeeded) + calculateOptionCost(putCost, putsNeeded);
+    }
+
+    chartDataToDisplay() {
+        if(Object.keys(this.state.chartData).length > 0) {
+            let chartDataToDisplay = {...this.state.chartData};
+            chartDataToDisplay.series = [...chartDataToDisplay.series]
+            chartDataToDisplay.series.push({
+                name: 'Options Cost',
+                data: chartDataToDisplay.series[0].data.map(point => this.calculateOptionsCost())
+            });
+            return chartDataToDisplay;
+        }
+        return {};
+    }
+
+    componentDidMount() {
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum);
+            window.ethereum.enable().then(
+                address => {
+                    //for some reason metamask doesnt like batch requests... using infura
+                    const infuraweb3 = new Web3(
+                        new Web3.providers.HttpProvider(`https://mainnet.infura.io/v3/3425960a247b4ae9b94e7d0e51c1bef0`)
+                    );
+                    const opynConnector = new OpynConnector({ web3: infuraweb3 });
+                    this.setState({
+                        ethereum: {
+                            address,
+                            web3: infuraweb3,
+                        },
+                        chartData: {},
+                        opynConnector,
+                    });
+                    this.setState({ optionRequestState: "LOADING" })
+                    opynConnector.init().then(
+                        result => {
+                            const optionsData = getRestructuredOptions(result);
+                            this.setState({
+                                optionRequestState: "SUCCESS",
+                                optionsData
+                            })
+                        }
+                    ).catch(
+                        err => this.setState({ optionRequestState: "FAILED" })
+                    );
+                }
+            );
+        }
+    }
+
+    //take timestamp in case we get requests back out of order
+    updatePriceData(timestamp, priceData) {
+        if(timestamp > this.state.priceData.timestamp) {
+            this.setState({
+                priceData
+            });
         }
     }
 
     updateChartData(chartData) {
-        this.setState({ chartData }, () => console.log(this.state))
+        this.setState({ chartData })
+    }
+
+    getErrorMessage() {
+        if(!this.state.ethereum.web3) {
+            return "Please enable metamask";
+        } else if(this.state.optionRequestState === "LOADING") {
+            return "Loading options... this may take up to 30 seconds"
+        } else if(this.state.optionRequestState === "FAILED") {
+            return "Failed to fetch option data. Refresh to try again"
+        }
     }
 
     render() {
-        const { optionsData, optionsPriceData, uniswapData, chartData } = this.state;
+        const { optionsData, ethereum, optionRequestState, opynConnector } = this.state;
 
         return (
             <div className="App">
@@ -31,19 +114,28 @@ class App extends Component {
                         <div className="logo"/>
                     </div>
                     <div className="page-content">
-                        <div className="container">
-                            <Form optionsData={optionsData}
-                                  optionsPriceData={optionsPriceData}
-                                  uniswapData={uniswapData}
-                                  updateChartData={(value) => this.updateChartData(value)}
-                            />
-                        </div>
-                        <div className="container">
-                            <HighchartsReact highcharts={Highcharts} options={chartData}/>
-                        </div>
+                        { ethereum.web3 && optionRequestState === "SUCCESS" ?
+                            <Fragment>
+                                <div className="container">
+                                    <Form optionsData={optionsData}
+                                          updateChartData={(value) => this.updateChartData(value)}
+                                          updatePriceData={(timestamp, priceData) => this.updatePriceData(timestamp, priceData)}
+                                          opynConnector={opynConnector}
+                                    />
+                                </div>
+                                <div className="container">
+                                    The chart below assumes you are providing 1 ETH of value to the pool. 0.5 ETH and 0.5 ETH worth of USDC.
+                                    <HighchartsReact highcharts={Highcharts} options={this.chartDataToDisplay()}/>
+                                </div>
+                            </Fragment>
+                            :
+                            <div className="container">
+                                {this.getErrorMessage()}
+                            </div>
+                        }
                     </div>
                     <div className="footer">
-                        hey
+
                     </div>
                 </div>
             </div>
