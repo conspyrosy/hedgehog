@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/hedgehog/static/css/main.870b067c.chunk.css",
-    "main.js": "/hedgehog/static/js/main.5f171ae8.chunk.js",
-    "main.js.map": "/hedgehog/static/js/main.5f171ae8.chunk.js.map",
+    "main.js": "/hedgehog/static/js/main.9101a61b.chunk.js",
+    "main.js.map": "/hedgehog/static/js/main.9101a61b.chunk.js.map",
     "runtime-main.js": "/hedgehog/static/js/runtime-main.0017ed4b.js",
     "runtime-main.js.map": "/hedgehog/static/js/runtime-main.0017ed4b.js.map",
-    "static/js/2.81049902.chunk.js": "/hedgehog/static/js/2.81049902.chunk.js",
-    "static/js/2.81049902.chunk.js.map": "/hedgehog/static/js/2.81049902.chunk.js.map",
+    "static/js/2.22db956c.chunk.js": "/hedgehog/static/js/2.22db956c.chunk.js",
+    "static/js/2.22db956c.chunk.js.map": "/hedgehog/static/js/2.22db956c.chunk.js.map",
     "index.html": "/hedgehog/index.html",
-    "precache-manifest.fb91ae6eed3ef3ae7fbccb7cf43ed723.js": "/hedgehog/precache-manifest.fb91ae6eed3ef3ae7fbccb7cf43ed723.js",
+    "precache-manifest.5bb1be5d50ac324e4bb587e3912822dc.js": "/hedgehog/precache-manifest.5bb1be5d50ac324e4bb587e3912822dc.js",
     "service-worker.js": "/hedgehog/service-worker.js",
     "static/css/main.870b067c.chunk.css.map": "/hedgehog/static/css/main.870b067c.chunk.css.map",
-    "static/js/2.81049902.chunk.js.LICENSE.txt": "/hedgehog/static/js/2.81049902.chunk.js.LICENSE.txt",
+    "static/js/2.22db956c.chunk.js.LICENSE.txt": "/hedgehog/static/js/2.22db956c.chunk.js.LICENSE.txt",
     "static/media/index.scss": "/hedgehog/static/media/hedgehog-logo.3f21c07e.png"
   },
   "entrypoints": [
     "static/js/runtime-main.0017ed4b.js",
-    "static/js/2.81049902.chunk.js",
+    "static/js/2.22db956c.chunk.js",
     "static/css/main.870b067c.chunk.css",
-    "static/js/main.5f171ae8.chunk.js"
+    "static/js/main.9101a61b.chunk.js"
   ]
 }
