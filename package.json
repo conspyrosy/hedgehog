@@ -2,6 +2,7 @@
   "name": "hedgehog",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://conspyrosy.github.io/hedgehog",
   "dependencies": {
     "@ethersproject/address": "^5.0.5",
     "@ethersproject/contracts": "^5.0.5",
@@ -17,7 +18,7 @@
     "highcharts": "^8.2.0",
     "highcharts-react-official": "^3.0.0",
     "node-sass": "^4.14.1",
-    "opyn-connector": "file:../opyn-connector",
+    "opyn-connector": "^0.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
@@ -27,7 +28,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"

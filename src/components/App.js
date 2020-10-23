@@ -47,38 +47,30 @@ class App extends Component {
     }
 
     componentDidMount() {
-        if (window.ethereum) {
-            window.web3 = new Web3(window.ethereum);
-            window.ethereum.enable().then(
-                address => {
-                    //for some reason metamask doesnt like batch requests... using infura
-                    const infuraweb3 = new Web3(
-                        new Web3.providers.HttpProvider(`https://mainnet.infura.io/v3/3425960a247b4ae9b94e7d0e51c1bef0`)
-                    );
-                    const opynConnector = new OpynConnector({ web3: infuraweb3 });
-                    this.setState({
-                        ethereum: {
-                            address,
-                            web3: infuraweb3,
-                        },
-                        chartData: {},
-                        opynConnector,
-                    });
-                    this.setState({ optionRequestState: "LOADING" })
-                    opynConnector.init().then(
-                        result => {
-                            const optionsData = getRestructuredOptions(result);
-                            this.setState({
-                                optionRequestState: "SUCCESS",
-                                optionsData
-                            })
-                        }
-                    ).catch(
-                        err => this.setState({ optionRequestState: "FAILED" })
-                    );
-                }
-            );
-        }
+        //for some reason metamask doesnt like batch requests... using infura
+        const infuraweb3 = new Web3(
+            new Web3.providers.HttpProvider(`https://mainnet.infura.io/v3/3425960a247b4ae9b94e7d0e51c1bef0`)
+        );
+        const opynConnector = new OpynConnector({ web3: infuraweb3 });
+        this.setState({
+            ethereum: {
+                web3: infuraweb3,
+            },
+            chartData: {},
+            opynConnector,
+        });
+        this.setState({ optionRequestState: "LOADING" })
+        opynConnector.init().then(
+            result => {
+                const optionsData = getRestructuredOptions(result);
+                this.setState({
+                    optionRequestState: "SUCCESS",
+                    optionsData
+                })
+            }
+        ).catch(
+            err => this.setState({ optionRequestState: "FAILED" })
+        );
     }
 
     //take timestamp in case we get requests back out of order
@@ -96,7 +88,7 @@ class App extends Component {
 
     getErrorMessage() {
         if(!this.state.ethereum.web3) {
-            return "Please enable metamask";
+            return "Failed to get web3 provider";
         } else if(this.state.optionRequestState === "LOADING") {
             return "Loading options... this may take up to 30 seconds"
         } else if(this.state.optionRequestState === "FAILED") {
@@ -135,7 +127,7 @@ class App extends Component {
                         }
                     </div>
                     <div className="footer">
-
+                        <a href="https://github.com/conspyrosy/hedgehog">Contribute</a>
                     </div>
                 </div>
             </div>

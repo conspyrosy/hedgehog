@@ -178,13 +178,25 @@ module.exports = {
 
         const timestamp = Date.now();
 
-        let optionPrices = [
-            opynConnector.getPriceOfPurchase(callOption, true, 1),
-            opynConnector.getPriceOfPurchase(putOption, false, 1)
-        ];
+        //if undefined, resolve promise to 0 else get price
+        const getOptionsPricesAsync = () => {
+            const getPriceOrResolveToZero = (option, isCall, amountOptionsToBuy) => {
+                if(option) {
+                    return opynConnector.getPriceOfPurchase(option, isCall, amountOptionsToBuy);
+                }
+                return new Promise((resolve) => {
+                    resolve(0)
+                });
+            }
+
+            return [
+                getPriceOrResolveToZero(callOption, true, 1),
+                getPriceOrResolveToZero(putOption, false, 1)
+            ];
+        }
 
         //publish result to state async
-        Promise.all(optionPrices).then(
+        Promise.all(getOptionsPricesAsync()).then(
             ([callCost, putCost]) => {
                 const priceData = {
                     timestamp,
