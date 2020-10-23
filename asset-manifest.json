@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/hedgehog/static/css/main.870b067c.chunk.css",
+    "main.js": "/hedgehog/static/js/main.1107af98.chunk.js",
+    "main.js.map": "/hedgehog/static/js/main.1107af98.chunk.js.map",
+    "runtime-main.js": "/hedgehog/static/js/runtime-main.0017ed4b.js",
+    "runtime-main.js.map": "/hedgehog/static/js/runtime-main.0017ed4b.js.map",
+    "static/js/2.9b710557.chunk.js": "/hedgehog/static/js/2.9b710557.chunk.js",
+    "static/js/2.9b710557.chunk.js.map": "/hedgehog/static/js/2.9b710557.chunk.js.map",
+    "index.html": "/hedgehog/index.html",
+    "precache-manifest.01af0b47880f0f75005b5fd6136d2862.js": "/hedgehog/precache-manifest.01af0b47880f0f75005b5fd6136d2862.js",
+    "service-worker.js": "/hedgehog/service-worker.js",
+    "static/css/main.870b067c.chunk.css.map": "/hedgehog/static/css/main.870b067c.chunk.css.map",
+    "static/js/2.9b710557.chunk.js.LICENSE.txt": "/hedgehog/static/js/2.9b710557.chunk.js.LICENSE.txt",
+    "static/media/index.scss": "/hedgehog/static/media/hedgehog-logo.3f21c07e.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0017ed4b.js",
+    "static/js/2.9b710557.chunk.js",
+    "static/css/main.870b067c.chunk.css",
+    "static/js/main.1107af98.chunk.js"
+  ]
+}
