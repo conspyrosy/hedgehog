@@ -2,9 +2,9 @@ import React, { Component, Fragment } from 'react';
 import Form from './Form';
 import Highcharts from 'highcharts';
 import HighchartsReact from "highcharts-react-official";
-const Web3 = require("web3");
-const OpynConnector = require('opyn-connector');
-const { getRestructuredOptions } = require('../utils/opynUtils');
+import Web3 from "web3";
+import OpynConnector from 'opyn-connector';
+import { getRestructuredOptions } from '../utils/opynUtils';
 
 class App extends Component {
     state = {

@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
-const dateFormat = require('dateformat');
-const { ChainId, Token, WETH, Fetcher, Route } = require('@uniswap/sdk');
-const { getChartAndPurchaseData } = require('./../utils/getChartData');
-const supportedPairs = require('./../constants/supportedPairs.json'); //hardcoded for now...
-const {
+import { ChainId, Token, WETH, Fetcher, Route } from '@uniswap/sdk';
+import dateFormat from 'dateformat';
+import getChartAndPurchaseData from '../utils/getChartData'; //hardcoded for now...
+import {
     getOptionsForPair,
     generateOptionKey,
     getCallStrikePrice,
     getPutStrikePrice
-} = require('../utils/opynUtils');
+} from '../utils/opynUtils';
+import supportedPairs from './../constants/supportedPairs.json';
 
 class Form extends Component {
     state = {

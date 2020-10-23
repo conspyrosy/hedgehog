@@ -1,4 +1,4 @@
-const merge = require('deepmerge')
+import merge from 'deepmerge';
 
 const ethAndWeth = ["0x0000000000000000000000000000000000000000", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"];
 
@@ -73,7 +73,7 @@ const getPutStrikePrice = put => {
     return Math.round(strikePrice);
 }
 
-module.exports = {
+export {
     generateOptionKey,
     getOptionsForPair,
     getRestructuredOptions,

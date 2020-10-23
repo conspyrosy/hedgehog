@@ -1,4 +1,4 @@
-const { getCallStrikePrice, getPutStrikePrice } = require('./opynUtils');
+import { getCallStrikePrice, getPutStrikePrice } from './opynUtils';
 
 //these reflect a factor of the price e.g. 2 means 2x or 0.5x
 const points = [1.25, 1.5, 1.75, 2, 3, 4, 5];
@@ -107,128 +107,128 @@ const getPriceChangeLabelForAxis = (currentPrice, point) => {
     }
 }
 
-module.exports = {
-    /**
-     * Generates the chart data from the relevant inputs
-     *
-     * @param priceFactor the factor of change in price we care about. e.g. 2 means 0.5x - 2x
-     * @param currentPrice the current price of the pair
-     * @param callStrikePrice the strike price of the call we are hedging with (-1 if no call used)
-     * @param putStrikePrice the strike price of the put we are hedging with (-1 if no put used)
-     * @param callCost the cost of a single call option
-     * @param putCost the cost of a single put option
-     * @param opynConnector an instance of OpynConnector so we can fetch prices of options
-     */
-    getChartAndPurchaseData: ({
-          priceFactor,
-          currentPrice,
-          callOption,
-          putOption,
-          onPriceUpdate,
-          opynConnector
-    }) => {
-        const callStrikePrice = !callOption ? undefined : getCallStrikePrice(callOption);
-        const putStrikePrice = !putOption ? undefined : getPutStrikePrice(putOption);
+/**
+ * Generates the chart data from the relevant inputs
+ *
+ * @param priceFactor the factor of change in price we care about. e.g. 2 means 0.5x - 2x
+ * @param currentPrice the current price of the pair
+ * @param callStrikePrice the strike price of the call we are hedging with (-1 if no call used)
+ * @param putStrikePrice the strike price of the put we are hedging with (-1 if no put used)
+ * @param callCost the cost of a single call option
+ * @param putCost the cost of a single put option
+ * @param opynConnector an instance of OpynConnector so we can fetch prices of options
+ */
+const getChartAndPurchaseData = ({
+      priceFactor,
+      currentPrice,
+      callOption,
+      putOption,
+      onPriceUpdate,
+      opynConnector
+}) => {
+    const callStrikePrice = !callOption ? undefined : getCallStrikePrice(callOption);
+    const putStrikePrice = !putOption ? undefined : getPutStrikePrice(putOption);
 
-        const pointsOfInterest = getPricePoints(priceFactor, currentPrice, callStrikePrice, putStrikePrice);
+    const pointsOfInterest = getPricePoints(priceFactor, currentPrice, callStrikePrice, putStrikePrice);
 
-        let putsNeeded = 0;
-        if(pointsOfInterest[0].putReturn > 0) {
-            putsNeeded = pointsOfInterest[0].impermanentLoss * currentPrice / pointsOfInterest[0].putReturn;
-        }
-
-        let callsNeeded = 0;
-        if(pointsOfInterest[pointsOfInterest.length - 1].callReturn > 0) {
-            callsNeeded = pointsOfInterest[pointsOfInterest.length - 1].impermanentLoss * currentPrice / pointsOfInterest[pointsOfInterest.length - 1].callReturn;
-        }
-
-        const chartData = {
-            chart: {
-                type: 'spline'
-            },
-            title: {
-                text: 'Profit/Loss'
-            },
-            series: [
-                {
-                    name: 'Impermanent Loss',
-                    data: pointsOfInterest.map(point => point.impermanentLoss * currentPrice)
-                },
-                /*
-                {
-                    name: 'Net Profit',
-                    data: calculatePutReturns().map((val, id) => val + calculateCallReturns()[id] + costOfOptions - (absoluteImpermanentLoss[id] || 0))
-                }
-                */
-            ],
-            xAxis: {
-                categories: pointsOfInterest.map(point => {
-                    return point.absolutePrice.toPrecision(5).toString() + getPriceChangeLabelForAxis(currentPrice, point)
-                }),
-                title: {
-                    text: "Price (USDC)"
-                }
-            },
-            yAxis: {
-                title: {
-                    text: "Profit/Loss (USDC)"
-                }
-            },
-        };
-
-        const timestamp = Date.now();
-
-        //if undefined, resolve promise to 0 else get price
-        const getOptionsPricesAsync = () => {
-            const getPriceOrResolveToZero = (option, isCall, amountOptionsToBuy) => {
-                if(option) {
-                    return opynConnector.getPriceOfPurchase(option, isCall, amountOptionsToBuy);
-                }
-                return new Promise((resolve) => {
-                    resolve(0)
-                });
-            }
-
-            return [
-                getPriceOrResolveToZero(callOption, true, 1),
-                getPriceOrResolveToZero(putOption, false, 1)
-            ];
-        }
-
-        //publish result to state async
-        Promise.all(getOptionsPricesAsync()).then(
-            ([callCost, putCost]) => {
-                const priceData = {
-                    timestamp,
-                    callCost,
-                    putCost,
-                    callsNeeded,
-                    putsNeeded,
-                }
-                onPriceUpdate(timestamp, priceData)
-            }
-        )
-
-        if(putStrikePrice) {
-            chartData.series.push({
-                name: 'Put Returns',
-                data: pointsOfInterest.map(point => putsNeeded * point.putReturn)
-            });
-        }
-
-        if(callStrikePrice) {
-            chartData.series.push({
-                name: 'Call Returns',
-                data: pointsOfInterest.map(point => callsNeeded * point.callReturn)
-            });
-        }
-
-        return {
-            chartData,
-            optionsRequired: {
-                callsNeeded,
-                putsNeeded
-            }
-        };
+    let putsNeeded = 0;
+    if(pointsOfInterest[0].putReturn > 0) {
+        putsNeeded = pointsOfInterest[0].impermanentLoss * currentPrice / pointsOfInterest[0].putReturn;
     }
+
+    let callsNeeded = 0;
+    if(pointsOfInterest[pointsOfInterest.length - 1].callReturn > 0) {
+        callsNeeded = pointsOfInterest[pointsOfInterest.length - 1].impermanentLoss * currentPrice / pointsOfInterest[pointsOfInterest.length - 1].callReturn;
+    }
+
+    const chartData = {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'Profit/Loss'
+        },
+        series: [
+            {
+                name: 'Impermanent Loss',
+                data: pointsOfInterest.map(point => point.impermanentLoss * currentPrice)
+            },
+            /*
+            {
+                name: 'Net Profit',
+                data: calculatePutReturns().map((val, id) => val + calculateCallReturns()[id] + costOfOptions - (absoluteImpermanentLoss[id] || 0))
+            }
+            */
+        ],
+        xAxis: {
+            categories: pointsOfInterest.map(point => {
+                return point.absolutePrice.toPrecision(5).toString() + getPriceChangeLabelForAxis(currentPrice, point)
+            }),
+            title: {
+                text: "Price (USDC)"
+            }
+        },
+        yAxis: {
+            title: {
+                text: "Profit/Loss (USDC)"
+            }
+        },
+    };
+
+    const timestamp = Date.now();
+
+    //if undefined, resolve promise to 0 else get price
+    const getOptionsPricesAsync = () => {
+        const getPriceOrResolveToZero = (option, isCall, amountOptionsToBuy) => {
+            if(option) {
+                return opynConnector.getPriceOfPurchase(option, isCall, amountOptionsToBuy);
+            }
+            return new Promise((resolve) => {
+                resolve(0)
+            });
+        }
+
+        return [
+            getPriceOrResolveToZero(callOption, true, 1),
+            getPriceOrResolveToZero(putOption, false, 1)
+        ];
+    }
+
+    //publish result to state async
+    Promise.all(getOptionsPricesAsync()).then(
+        ([callCost, putCost]) => {
+            const priceData = {
+                timestamp,
+                callCost,
+                putCost,
+                callsNeeded,
+                putsNeeded,
+            }
+            onPriceUpdate(timestamp, priceData)
+        }
+    )
+
+    if(putStrikePrice) {
+        chartData.series.push({
+            name: 'Put Returns',
+            data: pointsOfInterest.map(point => putsNeeded * point.putReturn)
+        });
+    }
+
+    if(callStrikePrice) {
+        chartData.series.push({
+            name: 'Call Returns',
+            data: pointsOfInterest.map(point => callsNeeded * point.callReturn)
+        });
+    }
+
+    return {
+        chartData,
+        optionsRequired: {
+            callsNeeded,
+            putsNeeded
+        }
+    };
 }
+
+export default getChartAndPurchaseData;
