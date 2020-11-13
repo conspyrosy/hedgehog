@@ -1,4 +1,4 @@
-![hedgehog](src/images/hedgehog-logo.png "Hedgehog")
+<a href="https://conspyrosy.github.io/hedgehog/" rel="Hedgehog App">![hedgehog](src/images/hedgehog-logo.png "Hedgehog")</a>
 
 # What is HedgeHog?
 
@@ -7,6 +7,8 @@ Being a Liquidity Provider on a constant product AMM means you are exposed to im
 Hedgehog is a simple tool for helping you visualise AMM Impermanent Loss as an LP whilst hedging with decentralised options. 
 
 Soon, it will allow you to provide liquidity to a pool and buy the options you wish to hedge in an atomic transaction.
+
+You can access hedgehog here: https://conspyrosy.github.io/hedgehog/
 
 # Strategy
 
