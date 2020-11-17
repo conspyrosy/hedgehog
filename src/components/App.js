@@ -3,7 +3,7 @@ import Form from './Form';
 import Highcharts from 'highcharts';
 import HighchartsReact from "highcharts-react-official";
 import Web3 from "web3";
-import OpynConnector from 'opyn-connector';
+import OpynConnector from 'opyn-v1-connector';
 import { getRestructuredOptions } from '../utils/opynUtils';
 
 class App extends Component {

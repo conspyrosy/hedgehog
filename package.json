@@ -22,7 +22,7 @@
     "highcharts": "^8.2.0",
     "highcharts-react-official": "^3.0.0",
     "node-sass": "^4.14.1",
-    "opyn-connector": "^0.0.1",
+    "opyn-v1-connector": "^0.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
